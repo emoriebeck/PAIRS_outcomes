@@ -3,9 +3,9 @@ title: PAIRS_outcomes
 account: emoriebeck
 server: shinyapps.io
 appId: 186582
-bundleId: 854730
+bundleId: 855124
 url: https://emoriebeck.shinyapps.io/PAIRS_outcomes/
-when: 1496722756.74991
+when: 1496754475.71316
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: centralityPlots.RData|idiographic_plots.RData|outcome_res.Rdata
+ignoredFiles: BeckJackson_ARP6.09.pdf|centralityPlots.RData|idiographic_plots.RData|outcome_res.Rdata

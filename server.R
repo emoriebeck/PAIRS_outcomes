@@ -30,7 +30,7 @@ load_url <- function (url, ..., sha1 = NULL) {
 load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/idiographic_plots.RData")
 #load("~/Box Sync/network/PAIRS/PAIRS_graphicalVAR/centralityPlots.RData")
 load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/centralityPlots.RData")
-load("~/Box Sync/network/PAIRS/outcomes/outcome_res.Rdata")
+load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/outcome_res.Rdata")
 
 library(graphicalVAR)
 library(tidyverse)

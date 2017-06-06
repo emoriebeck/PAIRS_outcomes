@@ -48,7 +48,7 @@ observe({
 })
 
 observe({
-  outcomes <- colnames(target.ratings.w1)[3:ncol(target.ratings.w1)]
+  outcomes <- unique(dat$outcome)
   updateSelectizeInput(session, 'outcome', choices = c("", outcomes))
 })
 

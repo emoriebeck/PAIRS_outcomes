@@ -27,12 +27,12 @@ load_url <- function (url, ..., sha1 = NULL) {
   load(temp_file, envir = .GlobalEnv)
 }
 
-#load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/idiographic_plots.RData")
-#load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/centralityPlots.RData")
-#load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/outcome_res.Rdata")
-load("~/Box Sync/network/PAIRS/PAIRS_outcomes/idiographic_plots.RData")
-load("~/Box Sync/network/PAIRS/PAIRS_outcomes/centralityPlots.RData")
-load("~/Box Sync/network/PAIRS/PAIRS_outcomes/outcome_res.RData")
+load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/idiographic_plots.RData")
+load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/centralityPlots.RData")
+load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/outcome_res.Rdata")
+# load("~/Box Sync/network/PAIRS/PAIRS_outcomes/idiographic_plots.RData")
+# load("~/Box Sync/network/PAIRS/PAIRS_outcomes/centralityPlots.RData")
+# load("~/Box Sync/network/PAIRS/PAIRS_outcomes/outcome_res.RData")
      
 
 library(graphicalVAR)
@@ -42,7 +42,7 @@ library(gridExtra)
 
 server <- function(input, output, session) {
 observe({
-  subs1 <- names(plot_kappa_w1)
+  subs1 <- names(PCC_plot0)
       updateSelectizeInput(session, 'SID', choices = c("", subs1),
                            selected = subs1[1])
 })
@@ -66,9 +66,9 @@ observe({
         need(input$SID, 'Please select a Subject ID'))
       
         if(input$Cor1 == "Temporal"){
-          plot1  <-  plot_beta_w1[[input$SID]]
+          plot1  <-  PDC_plot0[[input$SID]]
         } else{
-          plot1  <-  plot_kappa_w1[[input$SID]]
+          plot1  <-  PCC_plot0[[input$SID]]
         }
     
       # draw the histogram with the specified number of bins

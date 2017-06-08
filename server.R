@@ -27,8 +27,8 @@ load_url <- function (url, ..., sha1 = NULL) {
   load(temp_file, envir = .GlobalEnv)
 }
 
-load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/idiographic_plots.RData")
-load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/centralityPlots.RData")
+load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/idiographic_plots.RData")
+load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/centralityPlots.RData")
 load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/outcome_res.Rdata")
 # load("~/Box Sync/network/PAIRS/PAIRS_outcomes/idiographic_plots.RData")
 # load("~/Box Sync/network/PAIRS/PAIRS_outcomes/centralityPlots.RData")

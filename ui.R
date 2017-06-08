@@ -20,10 +20,10 @@ ui <- fluidPage(
              sidebarLayout(
                sidebarPanel(
                  selectizeInput("SID",
-                                "Subject ID #1:",
+                                "Subject ID:",
                                 choices = ""),
                  selectizeInput("Cor1",
-                                "Select Correlation Type",
+                                "Select Network Type",
                                 choices = c("Temporal", "Contemporaneous"))
                ), 
                mainPanel(
@@ -33,10 +33,10 @@ ui <- fluidPage(
              sidebarLayout(
                sidebarPanel(
                  selectizeInput("SID3",
-                                "Subject ID #1:",
+                                "Subject ID:",
                                 choices = ""),
                  selectizeInput("Cor3",
-                                "Select Correlation Type",
+                                "Select Network Type",
                                 choices = c("Temporal", "Contemporaneous"))
                ), 
                mainPanel(
@@ -47,18 +47,27 @@ ui <- fluidPage(
                sidebarPanel(
                  selectizeInput("predictor",
                                 "Choose Predictor",
-                                choices = c("Edge Weights", "Centrality", "Density")),
+                                choices = c("Centrality", "Density", "Edge Weights")),
                  selectizeInput("outcome",
                                 "Choose Outcome",
                                 choices = ""),
                  selectizeInput("type",
-                                "Select Correlation Type",
+                                "Choose Network Type",
                                 choices = c("Temporal", "Contemporaneous")),
-                 checkboxGroupInput("vars", label = h3("Choose Variables"), 
-                                    choices = list("A_rude","E_quiet","C_lazy","N_relaxed",
-                                                   "N_depressed","E_outgoing","A_kind","C_reliable", 
-                                                   "N_worried"), 
-                                    selected = c("A_rude","E_quiet"))
+                 
+                 conditionalPanel(
+                   condition = "input.predictor == 'Centrality'",
+                   selectizeInput("centrality", "Choose Centrality Index",
+                                  list("Degree", "Strength", "Betweenness", "Closeness"))
+                 ),
+                 conditionalPanel(
+                   condition = "input.predictor != 'Density'",
+                   checkboxGroupInput("vars", label = "Choose Variables", 
+                                      choices = list("A_rude","E_quiet","C_lazy","N_relaxed",
+                                                     "N_depressed","E_outgoing","A_kind","C_reliable", 
+                                                     "N_worried"), 
+                                      selected = c("A_rude","E_quiet"))
+                   )
                ),
                mainPanel(
                  plotOutput("outcome_plot")

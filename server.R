@@ -1,4 +1,4 @@
-
+a
 # Define server logic required to draw a histogram
 
 load_url <- function (url, ..., sha1 = NULL) {
@@ -27,9 +27,13 @@ load_url <- function (url, ..., sha1 = NULL) {
   load(temp_file, envir = .GlobalEnv)
 }
 
-load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/idiographic_plots.RData")
-load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/centralityPlots.RData")
-load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/outcome_res.Rdata")
+#load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/idiographic_plots.RData")
+#load_url("https://github.com/emoriebeck/PAIRS-Network-Stability/raw/master/centralityPlots.RData")
+#load_url("https://github.com/emoriebeck/PAIRS_outcomes/raw/master/outcome_res.Rdata")
+load("~/Box Sync/network/PAIRS/PAIRS_outcomes/idiographic_plots.RData")
+load("~/Box Sync/network/PAIRS/PAIRS_outcomes/centralityPlots.RData")
+load("~/Box Sync/network/PAIRS/PAIRS_outcomes/outcome_res.RData")
+     
 
 library(graphicalVAR)
 library(tidyverse)
@@ -39,26 +43,22 @@ library(gridExtra)
 server <- function(input, output, session) {
 observe({
   subs1 <- names(plot_kappa_w1)
-      updateSelectizeInput(session, 'SID', choices = c("", subs1))
+      updateSelectizeInput(session, 'SID', choices = c("", subs1),
+                           selected = subs1[1])
 })
 
 observe({
-  subs3 <- names(centralityPCC)
-  updateSelectizeInput(session, 'SID3', choices = c("",subs3))
+  subs3 <- names(beta_centrality_plot)
+  updateSelectizeInput(session, 'SID3', choices = c("",subs3),
+                       selected = "10167")
 })
 
 observe({
   outcomes <- unique(dat$outcome)
-  updateSelectizeInput(session, 'outcome', choices = c("", outcomes))
+  updateSelectizeInput(session, 'outcome', choices = c("", outcomes),
+                       selected = "GPA")
 })
 
-# observe({
-#   vars <- as.list(unique((dat %>% 
-#     filter(measuretype == "Edge Weights" & type == "Temporal") %>%
-#     separate(var, c("from", "to"), sep = "[.]"))$from))
-#   updateCheckboxGroupInput(session, 'vars', choices = vars)
-# })
-    
     output$gVARPlot <- renderPlot({
       # generate bins based on input$bins from ui.R
       
@@ -82,17 +82,13 @@ observe({
       validate(
         need(input$SID3, 'Please select a Subject ID'))
         if(input$Cor3 == "Temporal"){
-          plot1  <-  centralityPDC[[input$SID3]]
+          plot1  <-  beta_centrality_plot[[input$SID3]]
         } else{
-          plot1  <-  centralityPCC[[input$SID3]]
+          plot1  <-  kappa_centrality_plot[[input$SID3]]
         }
       if(!("" %in% input)){
         plot(plot1)
       }
-    })
-    
-    selectedData <- reactive({
-      dat[, c(input$predictor, input$outcome)]
     })
 
     output$outcome_plot <- renderPlot({
@@ -103,71 +99,70 @@ observe({
         need(input$outcome, "Please choose an outcome variable")
       )
 
-      subset_dat <- dat %>%
-        select(contains(input$predictor), contains(input$outcome))
-      subset_dat %>%
-        ggplot(aes(x = subset_dat[,1], y = subset_dat[,2])) +
-        geom_point(size = .8, color = "grey") +
-        geom_smooth() +
-        theme_classic()
-      Type <- input$type
-      predictor <- input$predictor
-      outcome <- input$outcome
-      vars <- input$vars
-      print(vars)
       if(input$predictor == "Edge Weights"){
         Type <- input$type
         predictor <- input$predictor
-        outcome <- input$outcome
-        vars <- input$vars
+        Outcome <- input$outcome
+        Vars <- input$vars
         dat %>%
-          filter(type == Type & measuretype == predictor & outcome == outcome ) %>%
+          filter(type == Type & measuretype == predictor & outcome == Outcome ) %>%
           select(SID, type, var, measure, outcome, value, value2) %>%
           separate(var, c("from", "to"), sep = "[.]") %>%
-          filter(from %in% vars & to %in% vars) %>%
+          filter(from %in% Vars & to %in% Vars) %>%
           ggplot(aes(x = value, y = value2)) +
           geom_point(size = .8, color = "grey") +
           geom_smooth(method = "lm") +
-          labs(x = predictor, y = outcome) +
+          labs(x = predictor, y = Outcome) +
           facet_grid(from~to) +
-          theme_bw()
+          theme_classic() +
+          theme(axis.text = element_text(face = "bold", size = rel(1.2)),
+                axis.title = element_text(face = "bold", size = rel(1.2)),
+                strip.text = element_text(face = "bold", size = rel(1.2)))
       } else if(input$predictor == "Centrality"){
         Type <- input$type
         predictor <- input$predictor
-        outcome <- input$outcome
-        vars <- input$vars
+        Outcome <- input$outcome
+        Vars <- input$vars
+        Centrality <- input$centrality
         dat2 <- dat  %>%
-          filter(type == Type & measuretype == predictor & 
-                   outcome == outcome & var %in% vars) %>%
+          filter(type == Type & measuretype == predictor & grepl(Centrality, measure) == T &
+                   outcome == Outcome & var %in% Vars) %>%
           select(SID, type, var, measure, outcome, value, value2) %>%
           group_by(var, measure) %>%
           mutate(ymin = floor(min(value2, na.rm = T)), ymax = ceiling(max(value2, na.rm = T)),
                  xmin = floor(min(value, na.rm = T)), xmax = ceiling(max(value, na.rm = T))) 
+        
         dat2 %>%
           ggplot(aes(x = value, y = value2)) +
-          scale_x_continuous(breaks = seq(floor(min(dat2$value, na.rm = T)), 
-                                          ceiling(max(dat2$value, na.rm = T)), length.out = 3)) +
+          # scale_x_continuous(breaks = seq(floor(min(dat2$value, na.rm = T)), 
+          #                                 ceiling(max(dat2$value, na.rm = T)), length.out = 3)) +
+          #geom_blank(aes(x = xmin)) + geom_blank(aes(y = xmax)) +
           scale_y_continuous(breaks = seq(floor(min(dat2$value2, na.rm = T)), ceiling(max(dat2$value2, na.rm = T)), 
                                           length.out = 3)) +
-          geom_point(size = .8, color = "grey") +
+          geom_jitter(size = .8, color = "grey") +
           geom_smooth(method = "lm") +
-          labs(x = predictor, y = outcome) +
-          facet_grid(measure~var) +
-          theme_bw()
+          labs(x = predictor, y = Outcome) +
+          facet_grid(measure~var, scales = "free_x") +
+          theme_classic() +
+          theme(axis.text = element_text(face = "bold", size = rel(1.2)),
+                axis.title = element_text(face = "bold", size = rel(1.2)),
+                strip.text = element_text(face = "bold", size = rel(1.2)))
       }else{
         Type <- input$type
         predictor <- input$predictor
-        outcome <- input$outcome
-        vars <- input$vars
+        Outcome <- input$outcome
         dat %>%
-          filter(type == Type & measuretype == predictor & outcome == outcome) %>%
+          filter(type == Type & measuretype == predictor & outcome == Outcome) %>%
           select(SID, type, var, measure, outcome, value, value2) %>%
           ggplot(aes(x = value, y = value2)) +
           geom_point(size = .8, color = "grey") +
           geom_smooth(method = "lm") +
-          labs(x = predictor, y = outcome) +
+          labs(x = predictor, y = Outcome) +
           facet_grid(measure~.) +
-          theme_bw()
+          theme_classic() +
+          theme(axis.text = element_text(face = "bold", size = rel(1.2)),
+                axis.title = element_text(face = "bold", size = rel(1.2)),
+                strip.text = element_text(face = "bold", size = rel(1.2)))
       }
       
     })
